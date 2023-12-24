@@ -1,0 +1,2 @@
+# isoChess
+Multiplayer chess project
