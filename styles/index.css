@@ -25,3 +25,7 @@ body {
 .black {
     background-color: #779954;
 }
+
+.piece{
+    width: 100%;
+}
