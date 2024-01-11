@@ -1,5 +1,6 @@
 import * as piece from "../data/pieces.js"
 import { root_div } from "../Helper/constants.js";
+import { globalState } from "../index.js";
 
 //used to render pieces on board
 function pieceRender(data) {
@@ -101,4 +102,30 @@ function initGameRender(data) {
     pieceRender(data);
 }
 
-export { initGameRender };
+function renderHighlight(squareId) {
+    const highlightSpan = document.createElement("span");
+    highlightSpan.classList.add("highlight");
+    document.getElementById(squareId).appendChild(highlightSpan);
+}
+
+function clearHighlight(){
+    const flatData = globalState.flat();
+    flatData.forEach(el => {
+        if(el.highlighted){
+            document.getElementById(el.id).innerHTML = "";
+            el.highlighted = false;
+        }
+    });
+}
+
+function selfHighlight(piece){
+    document.getElementById(piece.current_position).classList.add("highlightYellow");
+}
+
+function clearSelfHighlight(piece){
+    if(piece){
+        document.getElementById(piece.current_position).classList.remove("highlightYellow");
+    }
+}
+
+export { initGameRender , renderHighlight , clearHighlight , selfHighlight , clearSelfHighlight};

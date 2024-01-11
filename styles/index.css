@@ -14,8 +14,8 @@ body {
 }
 
 .square {
-    width: 110px;
-    height: 110px;
+    width: 100px;
+    height: 100px;
 }
 
 .white {
@@ -26,6 +26,20 @@ body {
     background-color: #779954;
 }
 
+.highlightYellow {
+    background-color: #F7F769;
+}
+
 .piece{
     width: 100%;
+}
+
+.highlight{
+    width: 35px;
+    display: block;
+    height: 35px;
+    margin: auto;
+    margin-top: 35px;
+    border-radius: 50%;
+    background-color: rgba(0,0,0,0.17);
 }
