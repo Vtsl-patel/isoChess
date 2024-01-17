@@ -43,3 +43,7 @@ body {
     border-radius: 50%;
     background-color: rgba(0,0,0,0.17);
 }
+
+.captureColor {
+    background-color: #EE4B2B;
+}
