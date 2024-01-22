@@ -1,7 +1,6 @@
 import { initGame } from "./Data/data.js";
 import { GlobalEvent } from "./Events/global.js";
 import { initGameRender } from "./render/main.js";
-// import { initGameRender } from "./Render/main.js";
 
 // will be usefull till game ends
 const globalState = initGame();

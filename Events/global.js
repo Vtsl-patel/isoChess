@@ -3,11 +3,11 @@ import { checkSquareCaptureId } from "../Helper/commonHelper.js";
 import { checkPieceOfOpponentOnElement } from "../Helper/commonHelper.js";
 import { checkWeatherPieceExistsOrNot } from "../Helper/commonHelper.js";
 import { ROOT_DIV } from "../Helper/constants.js";
-import { renderHighlight } from "../Render/main.js";
-import { clearHightlight } from "../Render/main.js";
-import { selfHighlight } from "../Render/main.js";
-import { globalStateRender } from "../Render/main.js";
-import { moveElement } from "../Render/main.js";
+import { renderHighlight } from "../render/main.js";
+import { clearHightlight } from "../render/main.js";
+import { selfHighlight } from "../render/main.js";
+import { globalStateRender } from "../render/main.js";
+import { moveElement } from "../render/main.js";
 import { globalState, keySquareMapper } from "../index.js";
 
 // import { clearPreviousSelfHighlight } from "../Render/main.js";
@@ -80,11 +80,6 @@ function whitePawnClick(square) {
   }
 
   hightlightSquareIds = checkSquareCaptureId(hightlightSquareIds);
-
-  hightlightSquareIds.forEach((hightlight) => {
-    const element = keySquareMapper[hightlight];
-    element.highlight = true;
-  });
 
   hightlightSquareIds.forEach((hightlight) => {
     const element = keySquareMapper[hightlight];
@@ -167,11 +162,6 @@ function whiteBishopClick(square) {
     element.highlight = true;
   });
 
-  hightlightSquareIds.forEach((hightlight) => {
-    const element = keySquareMapper[hightlight];
-    element.highlight = true;
-  });
-
   let captureIds = [];
 
   for (let index = 0; index < temp.length; index++) {
@@ -194,14 +184,76 @@ function whiteBishopClick(square) {
       }
     }
   }
+  globalStateRender();
+}
 
-  // let captureIds = [col1, col2];
-  // console.log(captureIds);
-  // // captureIds = checkSquareCaptureId(captureIds);
+// black pawn function
+function blackPawnClick(square) {
+  // clear board for any previous highlight
 
-  // captureIds.forEach((element) => {
-  //   checkPieceOfOpponentOnElement(element, "white");
-  // });
+  const piece = square.piece;
+
+  if (piece == selfHighlightState) {
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
+
+  if (square.captureHighlight) {
+    // movePieceFromXToY();
+    moveElement(selfHighlightState, piece.current_position);
+    clearPreviousSelfHighlight(selfHighlightState);
+    clearHighlightLocal();
+    return;
+  }
+
+  clearPreviousSelfHighlight(selfHighlightState);
+  clearHighlightLocal();
+
+  // highlighting logic
+  selfHighlight(piece);
+  hightlight_state = true;
+  selfHighlightState = piece;
+
+  // add piece as move state
+  moveState = piece;
+
+  const current_pos = piece.current_position;
+  const flatArray = globalState.flat();
+
+  let hightlightSquareIds = null;
+
+  // on initial position movement
+  if (current_pos[1] == "7") {
+    hightlightSquareIds = [
+      `${current_pos[0]}${Number(current_pos[1]) - 1}`,
+      `${current_pos[0]}${Number(current_pos[1]) - 2}`,
+    ];
+  } else {
+    hightlightSquareIds = [`${current_pos[0]}${Number(current_pos[1]) - 1}`];
+  }
+
+  hightlightSquareIds = checkSquareCaptureId(hightlightSquareIds);
+
+  hightlightSquareIds.forEach((hightlight) => {
+    const element = keySquareMapper[hightlight];
+    element.highlight = true;
+  });
+
+  // capture logic id
+  const col1 = `${String.fromCharCode(current_pos[0].charCodeAt(0) - 1)}${
+    Number(current_pos[1]) - 1
+  }`;
+  const col2 = `${String.fromCharCode(current_pos[0].charCodeAt(0) + 1)}${
+    Number(current_pos[1]) - 1
+  }`;
+
+  let captureIds = [col1, col2];
+  // captureIds = checkSquareCaptureId(captureIds);
+
+  captureIds.forEach((element) => {
+    checkPieceOfOpponentOnElement(element, "black");
+  });
 
   globalStateRender();
 }
@@ -264,11 +316,6 @@ function blackBishopClick(square) {
     element.highlight = true;
   });
 
-  hightlightSquareIds.forEach((hightlight) => {
-    const element = keySquareMapper[hightlight];
-    element.highlight = true;
-  });
-
   let captureIds = [];
 
   for (let index = 0; index < temp.length; index++) {
@@ -291,91 +338,6 @@ function blackBishopClick(square) {
       }
     }
   }
-
-  // let captureIds = [col1, col2];
-  // console.log(captureIds);
-  // // captureIds = checkSquareCaptureId(captureIds);
-
-  // captureIds.forEach((element) => {
-  //   checkPieceOfOpponentOnElement(element, "white");
-  // });
-
-  globalStateRender();
-}
-
-// black pawn function
-function blackPawnClick(square) {
-  // clear board for any previous highlight
-
-  const piece = square.piece;
-
-  if (piece == selfHighlightState) {
-    clearPreviousSelfHighlight(selfHighlightState);
-    clearHighlightLocal();
-    return;
-  }
-
-  if (square.captureHighlight) {
-    // movePieceFromXToY();
-    moveElement(selfHighlightState, piece.current_position);
-    clearPreviousSelfHighlight(selfHighlightState);
-    clearHighlightLocal();
-    return;
-  }
-
-  clearPreviousSelfHighlight(selfHighlightState);
-  clearHighlightLocal();
-
-  // highlighting logic
-  selfHighlight(piece);
-  hightlight_state = true;
-  selfHighlightState = piece;
-
-  // add piece as move state
-  moveState = piece;
-
-  const current_pos = piece.current_position;
-  const flatArray = globalState.flat();
-
-  let hightlightSquareIds = null;
-
-  // on initial position movement
-  if (current_pos[1] == "7") {
-    hightlightSquareIds = [
-      `${current_pos[0]}${Number(current_pos[1]) - 1}`,
-      `${current_pos[0]}${Number(current_pos[1]) - 2}`,
-    ];
-  } else {
-    hightlightSquareIds = [`${current_pos[0]}${Number(current_pos[1]) - 1}`];
-  }
-
-  hightlightSquareIds = checkSquareCaptureId(hightlightSquareIds);
-
-  hightlightSquareIds.forEach((hightlight) => {
-    const element = keySquareMapper[hightlight];
-    element.highlight = true;
-  });
-
-  hightlightSquareIds.forEach((hightlight) => {
-    const element = keySquareMapper[hightlight];
-    element.highlight = true;
-  });
-
-  // capture logic id
-  const col1 = `${String.fromCharCode(current_pos[0].charCodeAt(0) - 1)}${
-    Number(current_pos[1]) - 1
-  }`;
-  const col2 = `${String.fromCharCode(current_pos[0].charCodeAt(0) + 1)}${
-    Number(current_pos[1]) - 1
-  }`;
-
-  let captureIds = [col1, col2];
-  // captureIds = checkSquareCaptureId(captureIds);
-
-  captureIds.forEach((element) => {
-    checkPieceOfOpponentOnElement(element, "black");
-  });
-
   globalStateRender();
 }
 
