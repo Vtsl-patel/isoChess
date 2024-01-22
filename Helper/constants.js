@@ -1,3 +1,3 @@
-const root_div = document.getElementById("root");
+const ROOT_DIV = document.getElementById("root");
 
-export { root_div };
+export { ROOT_DIV };
