@@ -19,11 +19,25 @@ function checkPieceOfOpponentOnElement(id, color) {
   return false;
 }
 
+function checkPieceOfOpponentOnElementNoDom(id, color) {
+  const opponentColor = color === "white" ? "BLACK" : "WHITE";
+
+  const element = keySquareMapper[id];
+
+  if (!element) return false;
+
+  if (element.piece && element.piece.piece_name.includes(opponentColor)) {
+    return true;
+  }
+
+  return false;
+}
+
 // function to check weather piece exists or not by square-id
 function checkWeatherPieceExistsOrNot(squareId) {
   const square = keySquareMapper[squareId];
 
-  if (square.piece) {
+  if (square.piece != null) {
     return square;
   } else {
     return false;
@@ -42,6 +56,55 @@ function checkSquareCaptureId(array) {
       break;
     }
     returnArray.push(squareId);
+  }
+
+  return returnArray;
+}
+
+// function to give capture id for pawns
+function givePawnCapturesIds(pawns, color) {
+  let returnArray = [];
+
+  for (let i = 0; i < pawns.length; i++) {
+    if (pawns[i] != null && color == "white") {
+      let current_pos = pawns[i];
+      let col2, col1;
+      if (current_pos[0] != "a")
+        col2 = `${String.fromCharCode(current_pos[0].charCodeAt(0) + 1)}${
+          Number(current_pos[1]) + 1
+        }`;
+      if (current_pos[0] != "h")
+        col1 = `${String.fromCharCode(current_pos[0].charCodeAt(0) - 1)}${
+          Number(current_pos[1]) + 1
+        }`;
+
+      let captureIds = [col1, col2];
+
+      captureIds.forEach((element) => {
+        if (checkPieceOfOpponentOnElementNoDom(element, color)) {
+          returnArray.push(element);
+        }
+      });
+    } else if (pawns[i] != null && color == "black") {
+      let current_pos = pawns[i];
+      let col2, col1;
+      if (current_pos[0] != "a")
+        col2 = `${String.fromCharCode(current_pos[0].charCodeAt(0) + 1)}${
+          Number(current_pos[1]) - 1
+        }`;
+      if (current_pos[0] != "h")
+        col1 = `${String.fromCharCode(current_pos[0].charCodeAt(0) - 1)}${
+          Number(current_pos[1]) - 1
+        }`;
+
+      let captureIds = [col1, col2];
+
+      captureIds.forEach((element) => {
+        if (checkPieceOfOpponentOnElementNoDom(element, color)) {
+          returnArray.push(element);
+        }
+      });
+    }
   }
 
   return returnArray;
@@ -119,49 +182,49 @@ function giveBishopHighlightIds(id) {
   };
 }
 
-function giveBishopCaptureIds(id, color){
+function giveBishopCaptureIds(id, color) {
+  let resultArray = [];
 
-  if(!id){
-    return [];
-  }
+  for (let i = 0; i < id.length; i++) {
+    let hightlightSquareIds = giveBishopHighlightIds(id[i]);
 
-  let hightlightSquareIds = giveBishopHighlightIds(id);
+    let temp = [];
+    const { bottomLeft, topLeft, bottomRight, topRight } = hightlightSquareIds;
+    let returnArr = [];
 
-  let temp = [];
-  const { bottomLeft, topLeft, bottomRight, topRight } = hightlightSquareIds;
-  let returnArr = [];
+    // insert into temp
+    temp.push(bottomLeft);
+    temp.push(topLeft);
+    temp.push(bottomRight);
+    temp.push(topRight);
 
-  // insert into temp
-  temp.push(bottomLeft);
-  temp.push(topLeft);
-  temp.push(bottomRight);
-  temp.push(topRight);
-  
-  for (let index = 0; index < temp.length; index++) {
-    const arr = temp[index];
+    for (let index = 0; index < temp.length; index++) {
+      const arr = temp[index];
 
-    for (let j = 0; j < arr.length; j++) {
-      const element = arr[j];
+      for (let j = 0; j < arr.length; j++) {
+        const element = arr[j];
 
-      let checkPieceResult = checkWeatherPieceExistsOrNot(element);
-      if (
-        checkPieceResult &&
-        checkPieceResult.piece &&
-        checkPieceResult.piece.piece_name.toLowerCase().includes(color)
-      ) {
-        break;
-      }
+        let checkPieceResult = checkWeatherPieceExistsOrNot(element);
+        if (
+          checkPieceResult &&
+          checkPieceResult.piece &&
+          checkPieceResult.piece.piece_name.toLowerCase().includes(color)
+        ) {
+          break;
+        }
 
-      if (checkPieceOfOpponentOnElementNoDom(element, color)) {
-        returnArr.push(element)
-        break;
+        if (checkPieceOfOpponentOnElementNoDom(element, color)) {
+          returnArr.push(element);
+          break;
+        }
       }
     }
+
+    resultArray.push(returnArr);
   }
 
- 
-  return returnArr;
-
+  resultArray = resultArray.flat();
+  return resultArray;
 }
 
 // function to give highlight ids for rook
@@ -232,55 +295,56 @@ function giveRookHighlightIds(id) {
   };
 }
 
-function giveRookCapturesIds(id,color){
+function giveRookCapturesIds(id, color) {
+  let resultArray = [];
 
-  if(!id)
-  {
-    return [];
-  }
+  for (let i = 0; i < id.length; i++) {
+    const el = id[i];
+    let hightlightSquareIds = giveRookHighlightIds(el);
 
-  let hightlightSquareIds = giveRookHighlightIds(id);
+    let temp = [];
+    const { bottom, top, right, left } = hightlightSquareIds;
+    let returnArr = [];
 
-  let temp = [];
-  const { bottom, top, right, left } = hightlightSquareIds;
-  let returnArr = [];
+    // insert into temp
+    temp.push(bottom);
+    temp.push(top);
+    temp.push(right);
+    temp.push(left);
 
-  // insert into temp
-  temp.push(bottom);
-  temp.push(top);
-  temp.push(right);
-  temp.push(left);
-  
-  for (let index = 0; index < temp.length; index++) {
-    const arr = temp[index];
+    for (let index = 0; index < temp.length; index++) {
+      const arr = temp[index];
 
-    for (let j = 0; j < arr.length; j++) {
-      const element = arr[j];
+      for (let j = 0; j < arr.length; j++) {
+        const element = arr[j];
 
-      let checkPieceResult = checkWeatherPieceExistsOrNot(element);
-      if (
-        checkPieceResult &&
-        checkPieceResult.piece &&
-        checkPieceResult.piece.piece_name.toLowerCase().includes(color)
-      ) {
-        break;
-      }
+        let checkPieceResult = checkWeatherPieceExistsOrNot(element);
+        if (
+          checkPieceResult &&
+          checkPieceResult.piece &&
+          checkPieceResult.piece.piece_name.toLowerCase().includes(color)
+        ) {
+          break;
+        }
 
-      if (checkPieceOfOpponentOnElementNoDom(element, color)) {
-        returnArr.push(element)
-        break;
+        if (checkPieceOfOpponentOnElementNoDom(element, color)) {
+          returnArr.push(element);
+          break;
+        }
       }
     }
+
+    resultArray.push(returnArr);
   }
 
-  return returnArr;
-
+  resultArray = resultArray.flat();
+  return resultArray;
 }
 
 // function to give highlight ids for knight
 function giveKnightHighlightIds(id) {
   let resultArray = [];
-  if(!id){
+  if (!id) {
     return resultArray;
   }
 
@@ -288,48 +352,48 @@ function giveKnightHighlightIds(id) {
   let num = Number(id[1]);
 
   //top
-  if(num <= 6){
+  if (num <= 6) {
     if (alpha != "h") {
       let alpha2 = String.fromCharCode(alpha.charCodeAt(0) + 1);
-      resultArray.push(`${alpha2}${num+2}`);
+      resultArray.push(`${alpha2}${num + 2}`);
     }
     if (alpha != "a") {
       let alpha2 = String.fromCharCode(alpha.charCodeAt(0) - 1);
-      resultArray.push(`${alpha2}${num+2}`);
+      resultArray.push(`${alpha2}${num + 2}`);
     }
   }
 
   //bottom
-  if(num > 2){
+  if (num > 2) {
     if (alpha != "h") {
       let alpha2 = String.fromCharCode(alpha.charCodeAt(0) + 1);
-      resultArray.push(`${alpha2}${num-2}`);
+      resultArray.push(`${alpha2}${num - 2}`);
     }
     if (alpha != "a") {
       let alpha2 = String.fromCharCode(alpha.charCodeAt(0) - 1);
-      resultArray.push(`${alpha2}${num-2}`);
+      resultArray.push(`${alpha2}${num - 2}`);
     }
   }
 
   //left
-  if(alpha != "a" && alpha != "b"){
+  if (alpha != "a" && alpha != "b") {
     let alpha2 = String.fromCharCode(alpha.charCodeAt(0) - 2);
-    if (num < 8){
-      resultArray.push(`${alpha2}${num+1}`);
+    if (num < 8) {
+      resultArray.push(`${alpha2}${num + 1}`);
     }
-    if(num > 1){
-      resultArray.push(`${alpha2}${num-1}`);
+    if (num > 1) {
+      resultArray.push(`${alpha2}${num - 1}`);
     }
   }
 
   //right
-  if(alpha != "g" && alpha != "h"){
+  if (alpha != "g" && alpha != "h") {
     let alpha2 = String.fromCharCode(alpha.charCodeAt(0) + 2);
-    if (num < 8){
-      resultArray.push(`${alpha2}${num+1}`);
+    if (num < 8) {
+      resultArray.push(`${alpha2}${num + 1}`);
     }
-    if(num > 1){
-      resultArray.push(`${alpha2}${num-1}`);
+    if (num > 1) {
+      resultArray.push(`${alpha2}${num - 1}`);
     }
   }
 
@@ -337,90 +401,96 @@ function giveKnightHighlightIds(id) {
 }
 
 function giveKnightCaptureIds(id, color) {
+  let resultArray = [];
 
-  if (!id) {
-    return [];
+  for (let i = 0; i < id.length; i++) {
+    let returnArr = giveKnightHighlightIds(id[i]);
+
+    returnArr = returnArr.filter((element) => {
+      if (checkPieceOfOpponentOnElementNoDom(element, color)) {
+        return true;
+      }
+    });
+
+    resultArray.push(returnArr);
   }
 
-  let returnArr  = giveKnightHighlightIds(id);
-
-  returnArr = returnArr.filter(element => {
-    if(checkPieceOfOpponentOnElementNoDom(element, color)){
-      return true;
-    }
-  });
-
-  return returnArr;
+  resultArray = resultArray.flat();
+  return resultArray;
 }
 
 // function to give highlight ids for queen
-function giveQueenHighlightIds(id){
-  const rookMoves = giveRookHighlightIds(id)
+function giveQueenHighlightIds(id) {
+  const rookMoves = giveRookHighlightIds(id);
   const bishopMoves = giveBishopHighlightIds(id);
   return {
-    "left": rookMoves.left,
-    "right" :rookMoves.right,
-    "top" : rookMoves.top,
-    "bottom" : rookMoves.bottom,
-    "topLeft": bishopMoves.topLeft,
-    "topRight": bishopMoves.topRight,
-    "bottomLeft" : bishopMoves.bottomLeft,
-    "bottomRight" : bishopMoves.bottomRight
-  }
+    left: rookMoves.left,
+    right: rookMoves.right,
+    top: rookMoves.top,
+    bottom: rookMoves.bottom,
+    topLeft: bishopMoves.topLeft,
+    topRight: bishopMoves.topRight,
+    bottomLeft: bishopMoves.bottomLeft,
+    bottomRight: bishopMoves.bottomRight,
+  };
 }
 
-function giveQueenCapturesIds(id,color){
+function giveQueenCapturesIds(id, color) {
+  let resultArray = [];
 
-  if(!id) return [];
+  for (let i = 0; i < id.length; i++) {
+    let el = [id[i]];
 
-  let returnArr = [];
-  returnArr.push(giveBishopCaptureIds(id, color))
-  returnArr.push(giveRookCapturesIds(id, color))
-  return returnArr.flat();
+    let returnArr = [];
+    returnArr.push(giveBishopCaptureIds(el, color));
+    returnArr.push(giveRookCapturesIds(el, color));
+    resultArray.push(returnArr.flat());
+  }
+
+  resultArray = resultArray.flat();
+  return resultArray;
 }
 
 // function to give highlight ids for king
-function giveKingHighlightIds(id){
-  const rookMoves = giveRookHighlightIds(id)
+function giveKingHighlightIds(id) {
+  const rookMoves = giveRookHighlightIds(id);
   const bishopMoves = giveBishopHighlightIds(id);
-  const returnResult =  {
-    "left": rookMoves.left,
-    "right" :rookMoves.right,
-    "top" : rookMoves.top,
-    "bottom" : rookMoves.bottom,
-    "topLeft": bishopMoves.topLeft,
-    "topRight": bishopMoves.topRight,
-    "bottomLeft" : bishopMoves.bottomLeft,
-    "bottomRight" : bishopMoves.bottomRight
-  }
+  const returnResult = {
+    left: rookMoves.left,
+    right: rookMoves.right,
+    top: rookMoves.top,
+    bottom: rookMoves.bottom,
+    topLeft: bishopMoves.topLeft,
+    topRight: bishopMoves.topRight,
+    bottomLeft: bishopMoves.bottomLeft,
+    bottomRight: bishopMoves.bottomRight,
+  };
 
   for (const key in returnResult) {
     if (Object.hasOwnProperty.call(returnResult, key)) {
       const element = returnResult[key];
 
-      if(element.length != 0){
+      if (element.length != 0) {
         returnResult[key] = new Array(element[0]);
       }
-      
     }
   }
 
   return returnResult;
 }
 
-function giveKingCaptureIds(id, color){
-
-  if(!id) {
+function giveKingCaptureIds(id, color) {
+  if (!id) {
     return [];
   }
 
   let result = giveKingHighlightIds(id);
   result = Object.values(result).flat();
-  result = result.filter(element => {
-    if(checkPieceOfOpponentOnElementNoDom(element, color)){
+  result = result.filter((element) => {
+    if (checkPieceOfOpponentOnElementNoDom(element, color)) {
       return true;
     }
-  })
+  });
 
   return result;
 }
@@ -438,5 +508,6 @@ export {
   giveQueenHighlightIds,
   giveQueenCapturesIds,
   giveKingHighlightIds,
-  giveKingCaptureIds
+  giveKingCaptureIds,
+  givePawnCapturesIds,
 };
